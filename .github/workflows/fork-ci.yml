@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_debug:
+  build_apks:
     runs-on: ubuntu-latest
     env:
       GIT_ACTOR: ${{ secrets.GIT_ACTOR }}
@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup JDK
         uses: actions/setup-java@v5
@@ -25,13 +27,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Build Debug
-        run: ./gradlew assembleDebug --console=plain
+      - name: Build APKs
+        run: ./gradlew assembleCanary assembleRelease --console=plain
 
-      - name: Upload APK
+      - name: Upload APKs
         uses: actions/upload-artifact@v7
         with:
-          name: HyperCeiler-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: HyperCeiler-apks
+          path: |
+            app/build/outputs/apk/canary/*.apk
+            app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 30
